@@ -1,0 +1,18 @@
+<div class="container-fluid container-fluid-custom py-md-5 mb-5">
+    <div class="row">
+        <% if (searchResults != '') { %>
+            <% searchResults.forEach((note,index) => { %>
+                <a href="/dashboard/item/<%= note._id %>">
+                    <h4>
+                        <%= note.title %>
+                    </h4>
+                </a>
+                <% }) %>
+                    <% } else { %>
+                        <h1 class="display-2 fw-bold mb-4 position-relative home-title">
+                            No Items Found 😢🔍
+                        </h1>
+                        <a href="/dashboard" class="btn btn-primary btn-lg">Go Back to Dashboard</a>
+                        <% } %>
+    </div>
+</div>
