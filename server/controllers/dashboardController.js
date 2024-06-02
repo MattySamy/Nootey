@@ -1,8 +1,13 @@
 const Note = require("../models/Notes");
 const mongoose = require("mongoose");
+const path = require('path');
+const fileHelper = require("../../util/file");
+
 exports.dashboard = async function(req, res) {
     const locals = {
         userName: req.user.firstName,
+        photo: req.user.profileImage,
+
         title: "Dashboard",
         description: "Free Nodejs Notes Application",
     };
@@ -15,8 +20,9 @@ exports.dashboard = async function(req, res) {
                 { $match: { user: new mongoose.Types.ObjectId(req.user.id) } },
                 {
                     $project: {
-                        title: { $substr: ["$title", 0, 30] },
+                        title: { $substr: ["$title", 0, 20] },
                         body: { $substr: ["$body", 0, 100] },
+                        image: { $substr: ["$image", 0, -1] }
                     },
                 }
             ])
@@ -27,7 +33,6 @@ exports.dashboard = async function(req, res) {
         const count = await Note.count();
 
         res.render('dashboard/index', {
-            userName: req.user.firstName,
             locals,
             notes,
             layout: "../views/layouts/dashboard",
@@ -63,7 +68,8 @@ exports.dashboard = async function(req, res) {
         //   });
 
     } catch (error) {
-        res.status(400).render('400')
+        console.log(error)
+        res.status(404).render('404')
     }
 };
 
@@ -75,25 +81,37 @@ exports.dashboardViewNote = async(req, res) => {
             title: `Note - ${note.title}`,
             description: "Free Nodejs Notes Application",
             noteID: req.params.id,
+            photo: req.user.profileImage,
             note,
             layout: '../views/layouts/dashboard',
         });
     } else {
-        res.status(400).render('400')
+        res.status(404).render('404')
     }
 };
 
 
 exports.dashboardUpdateNote = async(req, res) => {
     try {
+        const note = await Note.findById({ _id: req.params.id }).where({ user: req.user.id }).lean();
+
+        function updateImage() {
+            if (req.file.path.replace("\\", "/")) {
+                fileHelper.clearImage(note.image);
+                return req.file.path.replace("\\", "/");
+            }
+        }
+        console.log(req.file);
         await Note.findByIdAndUpdate(req.params.id, {
             title: req.body.title,
             body: req.body.body,
             updatedAt: Date.now(),
+            image: updateImage(),
         }).where({ user: req.user.id });
         res.redirect('/dashboard')
     } catch (err) {
-        res.status(400).render('400')
+        console.log(err)
+        res.status(404).render('404')
     }
 }
 
@@ -111,6 +129,7 @@ exports.dashboardAddNote = async(req, res) => {
     res.render('dashboard/add', {
         layout: '../views/layouts/dashboard',
         title: "Add Note",
+        photo: req.user.profileImage,
         description: "Free Nodejs Notes Application",
     });
 }
@@ -118,7 +137,8 @@ exports.dashboardAddNote = async(req, res) => {
 exports.dashboardAddNoteSubmit = async(req, res) => {
     try {
         req.body.user = req.user.id;
-        await Note.create(req.body); // req.body => object
+        const image = req.file.path.replace("\\", "/");
+        await Note.create({...req.body, image }); // req.body => object
         res.redirect('/dashboard')
     } catch (err) {
         console.log(err)
@@ -133,6 +153,7 @@ exports.dashboardSearch = async(req, res) => {
             description: "Free Nodejs Notes Application",
             searchResults: '',
             layout: '../views/layouts/dashboard',
+            photo: req.user.profileImage,
         });
     } catch (err) {
         console.log(err);
@@ -155,6 +176,7 @@ exports.dashboardSearchSubmit = async(req, res) => {
             description: "Free Nodejs Notes Application",
             searchResults,
             layout: '../views/layouts/dashboard',
+            photo: req.user.profileImage,
         });
     } catch (err) {
         console.log(err);

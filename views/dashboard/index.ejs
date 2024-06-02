@@ -21,8 +21,9 @@
                     <% for( let index = 0; index < notes.length;
         index++ ) { %>
                         <div class="col-sm-3 mb-4">
-                            <div class="card border-secondary" style="min-height: 210px">
+                            <div class="card border-secondary text-center" style="min-height: 210px">
                                 <a href="/dashboard/item/<%= notes[index]._id %>" class="card-body text-decoration-none">
+                                        <img src="/<%= notes[index].image %>" referrerpolicy="no-referrer" alt="mdo" width="60" height="60" class="rounded-circle">
                                     <h5 class="card-title">
                                         <%= notes[index].title %>
                                     </h5>

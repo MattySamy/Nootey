@@ -191,3 +191,25 @@ span::after {
     transform: scale(0.9);
     box-shadow: 0 1px 15px #0c1d50;
 }
+
+input[type="file"]::file-selector-button {
+    border: none;
+    padding: 0.3em 0.4em;
+    border-radius: 0.2em;
+    background-color: #018777;
+    color: white;
+    font-family: inherit;
+    transition: 0.3s;
+    font-weight: bold;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #078b8b;
+    border: none;
+    transform: scale(1.1);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
